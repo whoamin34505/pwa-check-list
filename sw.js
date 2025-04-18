@@ -1,4 +1,4 @@
-const CACHE_NAME = 'checklist-v1'; 
+const CACHE_NAME = 'checklist-v2'; 
 const urlsToCache = [
   './',
   './index.html',
@@ -13,9 +13,30 @@ self.addEventListener('install', event => {
   );
 });
 
+self.addEventListener('activate', event => {
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then(keyList =>
+      Promise.all(
+        keyList.map(key => {
+          if (!cacheWhitelist.includes(key)) {
+            return caches.delete(key);
+          }
+        })
+      )
+    )
+  );
+});
+
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => response || fetch(event.request))
   );
+});
+
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });

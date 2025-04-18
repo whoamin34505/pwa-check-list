@@ -151,11 +151,27 @@ function handleBeforeInstallPrompt() {
 
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log('✅ ServiceWorker зарегистрирован'))
-      .catch(err => console.log('❌ Ошибка регистрации ServiceWorker:', err));
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      console.log('✅ ServiceWorker зарегистрирован');
+
+      // Следим за обновлениями
+      reg.onupdatefound = () => {
+        const newWorker = reg.installing;
+        newWorker.onstatechange = () => {
+          if (newWorker.state === 'installed') {
+            if (navigator.serviceWorker.controller) {
+              // Новый сервис-воркер установлен — уведомим пользователя
+              showUpdateNotification();
+            }
+          }
+        };
+      };
+    }).catch(err => {
+      console.log('❌ Ошибка регистрации ServiceWorker:', err);
+    });
   }
 }
+
 
 document.getElementById('clear-btn').addEventListener('click', () => {
   const confirmed = confirm("Вы уверены, что хотите удалить все данные?");
@@ -207,7 +223,11 @@ function showUpdateNotification() {
   document.body.appendChild(updateBanner);
 
   updateBanner.querySelector('button').addEventListener('click', () => {
-    window.location.reload(true); // Перезагружает с обходом кэша
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if (reg.waiting) {
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+    });
   });
 }
 
