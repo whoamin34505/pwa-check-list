@@ -157,18 +157,47 @@ function registerServiceWorker() {
   }
 }
 
-document.getElementById('clear-btn').addEventListener('click', () => {
-  const confirm1 = confirm('Вы точно хотите удалить все задачи?');
+document.getElementById('clear-btn').addEventListener('click', async () => {
+  const confirm1 = confirm('Вы точно хотите удалить ВСЕ данные приложения?');
   if (!confirm1) return;
-  console.log("1")
-  const confirm2 = confirm('Точно???');
+  const confirm2 = confirm('Точно??? Это удалит ВСЁ!');
   if (!confirm2) return;
-  console.log("2")
-  localStorage.removeItem('tasks');
+
+  console.log('🧹 Очистка начата');
+
+  localStorage.clear();
+  sessionStorage.clear();
+
+  document.cookie.split(';').forEach(cookie => {
+    const eqPos = cookie.indexOf('=');
+    const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
+    document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+  });
+
+  if ('serviceWorker' in navigator) {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    for (const registration of registrations) {
+      await registration.unregister();
+      console.log('❌ Удален ServiceWorker');
+    }
+  }
+
+  if ('caches' in window) {
+    const cacheNames = await caches.keys();
+    for (const name of cacheNames) {
+      await caches.delete(name);
+      console.log(`🗑️ Удален cache: ${name}`);
+    }
+  }
+
   document.querySelector('.add2').innerHTML = '';
-  alert('✅ Все задачи удалены.');
-  console.log("✅ Все задачи удалены.")
+
+  alert('✅ ВСЕ ДАННЫЕ УДАЛЕНЫ.');
+  console.log('✅ ВСЕ ДАННЫЕ УДАЛЕНЫ.');
+
+  window.location.reload();
 });
+
 
 
 window.addEventListener('load', () => {
