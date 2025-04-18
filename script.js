@@ -188,7 +188,7 @@ document.getElementById('clear-btn').addEventListener('click', () => {
   if ('caches' in window) {
     caches.keys().then(cacheNames => {
       cacheNames.forEach(cacheName => {
-        if (cacheName === 'checklist-v1') {
+        if (cacheName.startsWith('checklist-v')) {
           caches.delete(cacheName).then(deleted => {
             if (deleted) {
               console.log(`🧹 Кэш '${cacheName}' успешно удалён`);
@@ -198,6 +198,7 @@ document.getElementById('clear-btn').addEventListener('click', () => {
       });
     });
   }
+  
 
   alert("Все данные и кэш удалены!");
 });
@@ -213,6 +214,8 @@ window.addEventListener('load', () => {
 });
 
 function showUpdateNotification() {
+  console.log('🔔 Обнаружена новая версия. Показываем баннер');
+
   const updateBanner = document.createElement('div');
   updateBanner.innerHTML = `
     <div style="position: fixed; bottom: 0; left: 0; right: 0; background: #ffc107; color: #000; padding: 12px; text-align: center; z-index: 9999;">
@@ -223,11 +226,24 @@ function showUpdateNotification() {
   document.body.appendChild(updateBanner);
 
   updateBanner.querySelector('button').addEventListener('click', () => {
+    console.log('🧪 Нажата кнопка обновления');
+
     navigator.serviceWorker.getRegistration().then(reg => {
       if (reg.waiting) {
+        console.log('✅ Есть waiting service worker, отправляем SKIP_WAITING');
         reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+
+        // Перезагрузка после активации нового воркера
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          console.log('🎉 Новый воркер активирован, перезагружаем страницу');
+          window.location.reload();
+        });
+
+      } else {
+        console.log('⚠️ Нет reg.waiting — возможно, воркер ещё не установлен');
       }
     });
   });
 }
+
 
