@@ -182,13 +182,6 @@ document.getElementById('clear-btn').addEventListener('click', async () => {
     }
   }
 
-  if ('caches' in window) {
-    const cacheNames = await caches.keys();
-    for (const name of cacheNames) {
-      await caches.delete(name);
-      console.log(`🗑️ Удален cache: ${name}`);
-    }
-  }
 
   document.querySelector('.add2').innerHTML = '';
 
