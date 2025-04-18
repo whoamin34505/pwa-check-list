@@ -177,3 +177,19 @@ window.addEventListener('load', () => {
   handleBeforeInstallPrompt();
   registerServiceWorker();
 });
+
+function showUpdateNotification() {
+  const updateBanner = document.createElement('div');
+  updateBanner.innerHTML = `
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: #ffc107; color: #000; padding: 12px; text-align: center; z-index: 9999;">
+      🔄 Доступна новая версия! <button style="margin-left: 10px; padding: 6px 12px; background: #4a90e2; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Обновить</button>
+    </div>
+  `;
+
+  document.body.appendChild(updateBanner);
+
+  updateBanner.querySelector('button').addEventListener('click', () => {
+    window.location.reload(true); // Перезагружает с обходом кэша
+  });
+}
+
