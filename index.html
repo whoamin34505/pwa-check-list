@@ -35,9 +35,29 @@
     </div>
   </div>
 
+  <div id="update-toast" style="
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #222;
+  color: #fff;
+  padding: 1em 1.5em;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  font-size: 0.95em;
+  max-width: 90%;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+">
+  🔄 Новая версия доступна.<br>Закрой и открой приложение заново, чтобы обновить.
+</div>
+
 
   <footer style="text-align: center; margin-top: 30px; font-size: 14px; color: gray;">
-    Версия: <span id="app-version">1.0.1</span>
+    Версия: <span id="app-version">1.0.0</span>
   </footer>
   
 
