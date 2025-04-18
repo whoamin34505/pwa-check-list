@@ -157,39 +157,35 @@ function registerServiceWorker() {
   }
 }
 
-document.getElementById('clear-btn').addEventListener('click', async () => {
-  const confirm1 = confirm('Вы точно хотите удалить ВСЕ данные приложения?');
-  if (!confirm1) return;
-  const confirm2 = confirm('Точно??? Это удалит ВСЁ!');
-  if (!confirm2) return;
+document.getElementById('clear-btn').addEventListener('click', () => {
+  const confirmed = confirm("Вы уверены, что хотите удалить все данные?");
+  if (!confirmed) return;
 
-  console.log('🧹 Очистка начата');
-
+  // Очистка localStorage
   localStorage.clear();
-  sessionStorage.clear();
 
-  document.cookie.split(';').forEach(cookie => {
-    const eqPos = cookie.indexOf('=');
-    const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
-    document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
-  });
+  // Очистка DOM
+  document.querySelector('.add2').innerHTML = '';
+  document.querySelector('.add1').innerHTML = '';
 
-  if ('serviceWorker' in navigator) {
-    const registrations = await navigator.serviceWorker.getRegistrations();
-    for (const registration of registrations) {
-      await registration.unregister();
-      console.log('❌ Удален ServiceWorker');
-    }
+  // Удаление кэша Service Worker
+  if ('caches' in window) {
+    caches.keys().then(cacheNames => {
+      cacheNames.forEach(cacheName => {
+        if (cacheName === 'checklist-v1') {
+          caches.delete(cacheName).then(deleted => {
+            if (deleted) {
+              console.log(`🧹 Кэш '${cacheName}' успешно удалён`);
+            }
+          });
+        }
+      });
+    });
   }
 
-
-  document.querySelector('.add2').innerHTML = '';
-
-  alert('✅ ВСЕ ДАННЫЕ УДАЛЕНЫ.');
-  console.log('✅ ВСЕ ДАННЫЕ УДАЛЕНЫ.');
-
-  window.location.reload();
+  alert("Все данные и кэш удалены!");
 });
+
 
 
 
