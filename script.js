@@ -8,7 +8,6 @@ function btn_add() {
   `;
 }
 
-
 function saveTask() {
   console.log('func saveTask');
   const input = document.getElementById('new-task');
@@ -20,7 +19,6 @@ function saveTask() {
     document.querySelector('.add1').innerHTML = '';
   }
 }
-
 
 function addTaskToDOM(task) {
   console.log('func addTaskToDOM');
@@ -50,7 +48,6 @@ function addTaskToDOM(task) {
   taskContainer.appendChild(newItem);
 }
 
-
 function toggleDone(taskText, isDone) {
   console.log('func toggleDone');
   let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
@@ -59,7 +56,6 @@ function toggleDone(taskText, isDone) {
   );
   localStorage.setItem('tasks', JSON.stringify(tasks));
 }
-
 
 function deleteTask(taskText, element) {
   console.log('func deleteTask');
@@ -72,7 +68,6 @@ function deleteTask(taskText, element) {
   }
 }
 
-
 function saveToStorage(task) {
   console.log('func saveToStorage');
   let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
@@ -80,18 +75,16 @@ function saveToStorage(task) {
   localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
-
 function loadTasks() {
   console.log('func loadTasks');
   let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
   tasks.forEach(task => addTaskToDOM(task));
 }
 
-
+// iOS установка
 function isIos() {
   return /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
 }
-
 
 function isInStandaloneMode() {
   return ('standalone' in window.navigator) && window.navigator.standalone;
@@ -121,6 +114,7 @@ function handleIosInstallPrompt() {
   }
 }
 
+// Установка PWA
 let deferredPrompt = null;
 
 function handleBeforeInstallPrompt() {
@@ -149,18 +143,17 @@ function handleBeforeInstallPrompt() {
   });
 }
 
+// Service Worker
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').then(reg => {
       console.log('✅ ServiceWorker зарегистрирован');
 
-      // Следим за обновлениями
       reg.onupdatefound = () => {
         const newWorker = reg.installing;
         newWorker.onstatechange = () => {
           if (newWorker.state === 'installed') {
             if (navigator.serviceWorker.controller) {
-              // Новый сервис-воркер установлен — уведомим пользователя
               showUpdateNotification();
             }
           }
@@ -172,19 +165,15 @@ function registerServiceWorker() {
   }
 }
 
-
+// Очистка
 document.getElementById('clear-btn').addEventListener('click', () => {
   const confirmed = confirm("Вы уверены, что хотите удалить все данные?");
   if (!confirmed) return;
 
-  // Очистка localStorage
   localStorage.clear();
-
-  // Очистка DOM
   document.querySelector('.add2').innerHTML = '';
   document.querySelector('.add1').innerHTML = '';
 
-  // Удаление кэша Service Worker
   if ('caches' in window) {
     caches.keys().then(cacheNames => {
       cacheNames.forEach(cacheName => {
@@ -198,14 +187,11 @@ document.getElementById('clear-btn').addEventListener('click', () => {
       });
     });
   }
-  
 
   alert("Все данные и кэш удалены!");
 });
 
-
-
-
+// При загрузке
 window.addEventListener('load', () => {
   loadTasks();
   handleIosInstallPrompt();
@@ -213,46 +199,58 @@ window.addEventListener('load', () => {
   registerServiceWorker();
 });
 
-
-
-
-
+// Обновление
 function showUpdateNotification() {
   if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
     showUpdateToast();
   } else {
     console.log('🔔 Обнаружена новая версия. Показываем баннер');
-  
+
     const updateBanner = document.createElement('div');
     updateBanner.innerHTML = `
       <div style="position: fixed; bottom: 0; left: 0; right: 0; background: #ffc107; color: #000; padding: 12px; text-align: center; z-index: 9999;">
-        🔄 Доступна новая версия! <button style="margin-left: 10px; padding: 6px 12px; background: #4a90e2; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Обновить</button>
+        🔄 Доступна новая версия! 
+        <span id="update-loader">
+          <button id="update-btn" style="margin-left: 10px; padding: 6px 12px; background: #4a90e2; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Обновить</button>
+        </span>
       </div>
     `;
-  
+
     document.body.appendChild(updateBanner);
-  
-    updateBanner.querySelector('button').addEventListener('click', () => {
-      console.log('🧪 Нажата кнопка обновления');
-  
-      navigator.serviceWorker.getRegistration().then(reg => {
-        if (reg.waiting) {
-          console.log('✅ Есть waiting service worker, отправляем SKIP_WAITING');
-          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-  
-          // Перезагрузка после активации нового воркера
-          navigator.serviceWorker.addEventListener('controllerchange', () => {
-            console.log('🎉 Новый воркер активирован, перезагружаем страницу');
-            window.location.reload();
-          });
-  
-        } else {
-          console.log('⚠️ Нет reg.waiting — возможно, воркер ещё не установлен');
-        }
-      });
+
+    const updateBtn = document.getElementById('update-btn');
+    const updateLoader = document.getElementById('update-loader');
+
+    updateBtn.addEventListener('click', async () => {
+      // Заменяем кнопку на SVG loader
+      updateLoader.innerHTML = `
+        <div style="display: inline-block; width: 60px; height: 30px; vertical-align: middle; background: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22><circle fill=%22%23FF156D%22 stroke=%22%23FF156D%22 stroke-width=%2215%22 r=%2215%22 cx=%2240%22 cy=%2265%22><animate attributeName=%22cy%22 calcMode=%22spline%22 dur=%222%22 values=%2265;135;65;%22 keySplines=%22.5 0 .5 1;.5 0 .5 1%22 repeatCount=%22indefinite%22 begin=%22-.4%22></animate></circle><circle fill=%22%23FF156D%22 stroke=%22%23FF156D%22 stroke-width=%2215%22 r=%2215%22 cx=%22100%22 cy=%2265%22><animate attributeName=%22cy%22 calcMode=%22spline%22 dur=%222%22 values=%2265;135;65;%22 keySplines=%22.5 0 .5 1;.5 0 .5 1%22 repeatCount=%22indefinite%22 begin=%22-.2%22></animate></circle><circle fill=%22%23FF156D%22 stroke=%22%23FF156D%22 stroke-width=%2215%22 r=%2215%22 cx=%22160%22 cy=%2265%22><animate attributeName=%22cy%22 calcMode=%22spline%22 dur=%222%22 values=%2265;135;65;%22 keySplines=%22.5 0 .5 1;.5 0 .5 1%22 repeatCount=%22indefinite%22 begin=%220%22></animate></circle></svg>') no-repeat center center; background-size: contain;"></div>
+      `;
+
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg?.waiting) {
+        const waitingWorker = reg.waiting;
+
+        const reloadPage = () => {
+          console.log('🎉 Новый воркер активен, перезагружаем страницу');
+          window.location.reload();
+        };
+
+        navigator.serviceWorker.addEventListener('controllerchange', reloadPage);
+        waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+
+        // Таймаут на случай, если controllerchange не сработает
+        setTimeout(() => {
+          console.warn('⏱ Таймаут! Перезагружаем вручную');
+          reloadPage();
+        }, 3000);
+      } else {
+        console.warn('⚠️ Нет waiting воркера — возможно, воркер ещё не скачан');
+      }
     });
   }
 }
+
 
 function showUpdateToast() {
   const toast = document.getElementById('update-toast');
@@ -262,7 +260,7 @@ function showUpdateToast() {
   setTimeout(() => {
     toast.style.opacity = '1';
     toast.style.transform = 'translateX(-50%) translateY(-10px)';
-  }, 100); // плавное появление
+  }, 100);
 
   setTimeout(() => {
     toast.style.opacity = '0';
@@ -270,6 +268,5 @@ function showUpdateToast() {
     setTimeout(() => {
       toast.style.display = 'none';
     }, 500);
-  }, 10000); // исчезает через 10 секунд
+  }, 10000);
 }
-
