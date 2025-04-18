@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#4a90e2" />
+  <title>Check-List PWA</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./icons/icon-192x192.png" />
+  <script src="./script.js" defer></script>
+</head>
+<body>
+  <div class="container">
+    <h1>📋 Check-list</h1>
+    <button onclick="btn_add()">➕ Добавить</button>
+    <div class="add1"></div>
+    <div class="add2"></div>
+
+    <button id="theme-toggle">🌗 Сменить тему</button>
+    <button id="clear-btn" class="small-btn">🧹 Очистить данные</button>
+
+    <button id="install-btn" style="display: none;">📲 Установить приложение</button>
+
+    <div id="ios-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" id="close-modal">&times;</span>
+        <h2>Установка на iOS</h2>
+        <p>Чтобы установить приложение на главный экран:</p>
+        <ol>
+          <li>Открой приложение в Safari</li>
+          <li>Нажми на кнопку <strong>Поделиться</strong> <img src="https://i.imgur.com/EqW9MSc.png" alt="Поделиться" class="modal-img"></li>
+          <li>Выбери <strong>На экран «Домой»</strong> <img src="https://i.imgur.com/f0Nbzcq.png" alt="На экран «Домой»" class="modal-img"></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    :root {
+      --bg-color: #f4f6f8;
+      --text-color: #333;
+      --card-bg: #fff;
+      --accent: #4a90e2;
+      --btn-hover: #357ab8;
+      --delete-bg: #ff4d4f;
+      --delete-hover: #d9363e;
+    }
+
+    .small-btn {
+  background-color: #e17055;
+}
+
+.small-btn:hover {
+  background-color: #d35400;
+}
+
+    body.dark {
+      --bg-color: #1e1e1e;
+      --text-color: #f5f5f5;
+      --card-bg: #2a2a2a;
+      --accent: #4a90e2;
+      --btn-hover: #3a6fa3;
+      --delete-bg: #ff4d4f;
+      --delete-hover: #b72c30;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 18px;
+      font-size: 16px;
+      border: none;
+      background-color: var(--accent);
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin: 5px 5px 10px 0;
+    }
+
+    button:hover {
+      background-color: var(--btn-hover);
+    }
+
+    input[type="text"] {
+      padding: 8px;
+      font-size: 16px;
+      width: calc(100% - 20px);
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+    }
+
+    .add1, .add2 {
+      max-width: 100%;
+      margin: 0 auto 20px;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      background-color: var(--card-bg);
+      padding: 10px 14px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      margin-bottom: 10px;
+      justify-content: space-between;
+      transition: transform 0.1s ease;
+    }
+
+    .task-item:hover {
+      transform: scale(1.01);
+    }
+
+    .task-item input[type="checkbox"] {
+      transform: scale(1.4);
+      margin-right: 14px;
+    }
+
+    .task-item span {
+      flex-grow: 1;
+      font-size: 18px;
+      margin-right: 10px;
+    }
+
+    .task-item button {
+      background-color: var(--delete-bg);
+      border-radius: 50%;
+      padding: 6px 10px;
+      font-size: 14px;
+    }
+
+    .task-item button:hover {
+      background-color: var(--delete-hover);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+      background-color: var(--card-bg);
+      margin: 10% auto;
+      padding: 25px 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 420px;
+      position: relative;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+
+    .close-btn {
+      position: absolute;
+      right: 14px; top: 12px;
+      font-size: 28px;
+      color: var(--text-color);
+      cursor: pointer;
+    }
+
+    .modal-content h2 {
+      margin-top: 0;
+      color: var(--accent);
+    }
+
+    .modal-content ol {
+      padding-left: 20px;
+    }
+
+    .modal-img {
+      display: block;
+      max-width: 100%;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    #install-btn {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 999;
+      background-color: #00b894;
+    }
+
+    #install-btn:hover {
+      background-color: #00997d;
+    }
+
+    @media (max-width: 600px) {
+      .task-item span {
+        font-size: 16px;
+      }
+      button {
+        font-size: 15px;
+        padding: 8px 14px;
+      }
+    }
+  </style>
+
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const theme = localStorage.getItem('theme');
+      if (theme === 'dark') document.body.classList.add('dark');
+    });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(() => console.log('✅ ServiceWorker зарегистрирован'))
+          .catch(err => console.log('❌ Ошибка регистрации ServiceWorker:', err));
+      });
+    }
+  </script>
+</body>
+</html>
