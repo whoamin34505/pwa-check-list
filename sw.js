@@ -1,4 +1,4 @@
-const CACHE_NAME = 'checklist-v10'; 
+const CACHE_NAME = 'checklist-v11'; 
 const urlsToCache = [
   './',
   './index.html',
